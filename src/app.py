@@ -77,10 +77,3 @@ if file is not None:
     st.write("You may also be interested in :")
     st.write(recs_ant)
     st.write(recs_con)
-
-    for r in recs:
-        if st.button(r, key=1):
-            stain_default.append(r)
-
-    st.write(stain_default)
-
