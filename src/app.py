@@ -35,11 +35,9 @@ stain_default = ['CD10']
 st.title("IHC Stain Super Market")
 
 st.markdown("## 1 ) Upload rules")
-stain_csv = r"data\clean.csv"
 
-
-df = pd.read_csv(stain_csv, index_col=0)
-stains = list(df.columns)
+df = pd.read_json("./data/stains.json")
+stains = [stain[0] for stain in df.values]
 
 file = st.file_uploader("Upload rules.csv", type="csv")
 if file is not None: 
@@ -48,6 +46,7 @@ if file is not None:
 
     df['if'] = df.antecedents.apply(clean_itemsets)
     df['then'] = df.consequents.apply(clean_itemsets)
+
 
     # user input
     st.markdown("## 2 ) Add a stain to your basket")
