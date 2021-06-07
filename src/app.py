@@ -35,7 +35,9 @@ stain_default = ['CD10']
 st.title("IHC Stain Super Market")
 
 st.markdown("## 1 ) Upload rules")
-stain_csv = r"..\\data\\clean.csv"
+stain_csv = r"data\clean.csv"
+
+
 df = pd.read_csv(stain_csv, index_col=0)
 stains = list(df.columns)
 
@@ -47,77 +49,42 @@ if file is not None:
     df['if'] = df.antecedents.apply(clean_itemsets)
     df['then'] = df.consequents.apply(clean_itemsets)
 
+    # user input
+    st.markdown("## 2 ) Add a stain to your basket")
+    selected_raw = st.multiselect("Add stains to your basket", stains, default=stain_default, key=1)
+    selected = set(selected_raw)
 
+    # select top 5
+    df_out = df[df['if'].apply(lambda x: True if selected.issubset(x) else False)].sort_values("conviction", ascending=False)
+    df_out = df_out[:5]
+    # st.write(df_out)
+    st.write("Your current basket:")
+    st.write(selected_raw)
 
-# user input
-st.markdown("## 2 ) Add a stain to your basket")
-selected_raw = st.multiselect("Add stains to your basket", stains, default=stain_default, key=1)
-selected = set(selected_raw)
+    #
+    recs_out = []
+    recs_ant = df_out.antecedents.apply(clean_itemsets_to_str).to_list()
+    recs_con = df_out.consequents.apply(clean_itemsets_to_str).to_list()
 
-# select top 5
-df_out = df[df['if'].apply(lambda x: True if selected.issubset(x) else False)].sort_values("conviction", ascending=False)
-df_out = df_out[:5]
-# st.write(df_out)
-st.write("Your current basket:")
-st.write(selected_raw)
+    # breakdown suggestion as indivicual items
+    for rec in recs_ant:
+        recs_out.extend(rec)
+    recs_ant = list(set(recs_out))
 
-#
-recs_out = []
-recs_ant = df_out.antecedents.apply(clean_itemsets_to_str).to_list()
-recs_con = df_out.consequents.apply(clean_itemsets_to_str).to_list()
+    for rec in recs_con:
+        recs_out.extend(rec)
+    recs_con = list(set(recs_out))
 
-# breakdown suggestion as indivicual items
-for rec in recs_ant:
-    recs_out.extend(rec)
-recs_ant = list(set(recs_out))
+    recs = list(set(recs_out))
 
-for rec in recs_con:
-    recs_out.extend(rec)
-recs_con = list(set(recs_out))
+    st.markdown("## 3 ) Recommendations")
+    # st.write("People also add these to the basket:")
+    st.write("You may also be interested in :")
+    st.write(recs_ant)
+    st.write(recs_con)
 
-recs = list(set(recs_out))
+    for r in recs:
+        if st.button(r, key=1):
+            stain_default.append(r)
 
-st.markdown("## 3 ) Recommendations")
-# st.write("People also add these to the basket:")
-st.write("You may also be interested in :")
-st.write(recs_ant)
-st.write(recs_con)
-
-for r in recs:
-    if st.button(r, key=1):
-        stain_default.append(r)
-
-st.write(stain_default)
-
-
-
-# if st.button("qwe"):
-#     stain_default.append("KAPPA")
-#     selected_raw = st.multiselect("Add stains to your basket", stains, default=["CD10", "KAPPA"],key=1)
-
-
-
-
-
-
-    # output_then = df_out['then'].to_list()
-    # output_then = [str(i) for i in output_then]
-    # st.write(set(output_then))
-
-    # st.write("People usually already have these in the basket:")
-    # output_if = df_out['if'].to_list()
-    # output_if = [str(i) for i in output_if]
-    # st.write(set(output_if))
-
-
-    # selected = st.multiselect("Select Stain", output)
-
-
-import streamlit as st
-
-placeholder = st.empty()
-
-input = placeholder.text_input('text', value="123123")
-click_clear = st.button('clear text input', key=1)
-if click_clear:
-    input = placeholder.text_input('text', value='', key=1)
+    st.write(stain_default)
