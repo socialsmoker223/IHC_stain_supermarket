@@ -35,9 +35,9 @@ stain_default = ['CD10']
 st.title("IHC Stain Super Market")
 
 st.markdown("## 1 ) Upload rules")
-
-df = pd.read_json("./data/stains.json")
-stains = [stain[0] for stain in df.values]
+stain_csv = r"../data/clean.csv"
+df = pd.read_csv(stain_csv, index_col=0)
+stains = list(df.columns)
 
 file = st.file_uploader("Upload rules.csv", type="csv")
 if file is not None: 
@@ -48,42 +48,42 @@ if file is not None:
     df['then'] = df.consequents.apply(clean_itemsets)
 
 
-    # user input
-    st.markdown("## 2 ) Add a stain to your basket")
-    selected_raw = st.multiselect("Add stains to your basket", stains, default=stain_default, key=1)
-    selected = set(selected_raw)
 
-    # select top 5
-    df_out = df[df['if'].apply(lambda x: True if selected.issubset(x) else False)].sort_values("conviction", ascending=False)
-    df_out = df_out[:5]
-    # st.write(df_out)
-    st.write("Your current basket:")
-    st.write(selected_raw)
+# user input
+st.markdown("## 2 ) Add a stain to your basket")
+selected_raw = st.multiselect("Add stains to your basket", stains, default=stain_default, key=1)
+selected = set(selected_raw)
 
-    #
-    recs_out = []
-    recs_ant = df_out.antecedents.apply(clean_itemsets_to_str).to_list()
-    recs_con = df_out.consequents.apply(clean_itemsets_to_str).to_list()
+# select top 5
+df_out = df[df['if'].apply(lambda x: True if selected.issubset(x) else False)].sort_values("conviction", ascending=False)
+df_out = df_out[:5]
+st.write("Your current basket:")
+st.write(selected_raw)
 
-    # breakdown suggestion as indivicual items
-    for rec in recs_ant:
-        recs_out.extend(rec)
-    recs_ant = list(set(recs_out))
+# [TODO]
+recs_out = []
+recs_ant = df_out.antecedents.apply(clean_itemsets_to_str).to_list()
+recs_con = df_out.consequents.apply(clean_itemsets_to_str).to_list()
 
-    for rec in recs_con:
-        recs_out.extend(rec)
-    recs_con = list(set(recs_out))
+# breakdown suggestion as indivicual items
+for rec in recs_ant:
+    recs_out.extend(rec)
+recs_ant = list(set(recs_out))
 
-    recs = list(set(recs_out))
+for rec in recs_con:
+    recs_out.extend(rec)
+recs_con = list(set(recs_out))
 
-    st.markdown("## 3 ) Recommendations")
-    # st.write("People also add these to the basket:")
-    st.write("You may also be interested in :")
-    st.write(recs_ant)
-    st.write(recs_con)
+recs = list(set(recs_out))
 
-    for r in recs:
-        if st.button(r, key=1):
-            stain_default.append(r)
+st.markdown("## 3 ) Recommendations")
+st.write("You may also be interested in :")
+st.write(recs_ant)
+st.write(recs_con)
 
-    st.write(stain_default)
+for r in recs:
+    if st.button(r, key=1):
+        stain_default.append(r)
+
+st.write(stain_default)
+
