@@ -119,7 +119,7 @@ class Trainer(object):
         te = TransactionEncoder()
         te_ary = te.fit_transform(orderlist)
         df = pd.DataFrame(te_ary, columns = te.columns_)
-        df.to_csv(out_fp_clean_csv)
+        # df.to_csv(out_fp_clean_csv)
         
         print("Total number of transactions",len(df))
         print("Total number of unique stains",len(df.columns))
@@ -145,12 +145,10 @@ class Trainer(object):
         
         return frequent_itemsets, rules
 
-    def fit(self, csv, min_support):
+    def fit(self, csv, min_support=0.01):
         fp_csv = csv
         fp_mapping = r"./data/mapping_table_clean.json"
         out_fp_clean_csv = r"./data/clean.csv"
-        if not min_support:
-            min_support = 0.01
         metric = "confidence"
         metric_min_threshold = 0.8
         fp_itemsets = "itemsets_{}.csv".format(min_support)
