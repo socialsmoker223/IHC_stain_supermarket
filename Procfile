@@ -1,1 +1,1 @@
-web: sh setup.sh && python3 src/backend/main.py
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
