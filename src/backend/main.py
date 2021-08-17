@@ -1,8 +1,9 @@
 from typing import Optional
-from src.trainer import Trainer
+from trainer import Trainer
 from fastapi import FastAPI, File, UploadFile
 import numpy as np
 import pandas as pd
+import uvicorn
 import tempfile
 
 app = FastAPI()
@@ -21,3 +22,5 @@ def train_rules(file: UploadFile = File(...)):
         _, df_rules = trainer.fit(fp.name)
 
     return {"df": df_rules}
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8080)
